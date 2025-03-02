@@ -14,7 +14,8 @@ import torchvision.transforms as transforms
 import torchvision.datasets as datasets
 from torch.autograd import Variable
 
-from wideresnet import WideResNet
+#from wideresnet import WideResNet
+
 
 # used for logging to TensorBoard
 #from tensorboard_logger import configure, log_value
@@ -60,15 +61,16 @@ def main():
     if args.tensorboard: configure("runs/%s"%(args.name))
 
     # Data loading code
-    normalize = transforms.Normalize(mean=[x/255.0 for x in [125.3, 123.0, 113.9]],
-                                     std=[x/255.0 for x in [63.0, 62.1, 66.7]])
+    #normalize = transforms.Normalize(mean=[x/255.0 for x in [125.3, 123.0, 113.9]],
+    #                                 std=[x/255.0 for x in [63.0, 62.1, 66.7]])
 
     if args.augment:
+        assert False
         transform_train = transforms.Compose([
-        	transforms.ToTensor(),
-        	transforms.Lambda(lambda x: F.pad(
-        						Variable(x.unsqueeze(0), requires_grad=False, volatile=True),
-        						(4,4,4,4),mode='reflect').data.squeeze()),
+            transforms.ToTensor(),
+            transforms.Lambda(lambda x: F.pad(
+                                Variable(x.unsqueeze(0), requires_grad=False, volatile=True),
+                                (4,4,4,4),mode='reflect').data.squeeze()),
             transforms.ToPILImage(),
             transforms.RandomCrop(32),
             transforms.RandomHorizontalFlip(),
@@ -76,14 +78,8 @@ def main():
             normalize,
             ])
     else:
-        transform_train = transforms.Compose([
-            transforms.ToTensor(),
-            normalize,
-            ])
-    transform_test = transforms.Compose([
-        transforms.ToTensor(),
-        normalize
-        ])
+        transform_train = transforms.ToTensor()
+    transform_test = transforms.ToTensor()
 
     kwargs = {'num_workers': 1, 'pin_memory': True}
     #assert(args.dataset == 'cifar10' or args.dataset == 'cifar100')
@@ -96,8 +92,13 @@ def main():
         batch_size=args.batch_size, shuffle=True, **kwargs)
 
     # create model
-    model = WideResNet(args.layers, args.dataset == 'cifar10' and 10 or 100,
-                            args.widen_factor, dropRate=args.droprate)
+    #model = WideResNet(args.layers, args.dataset == 'cifar10' and 10 or 100,
+    #                        args.widen_factor, dropRate=args.droprate)
+    model = nn.Sequential(
+        nn.Flatten(),
+        nn.Linear(28 * 28, 128),
+        nn.ReLU(),
+        nn.Linear(128, 10))
 
     # get the number of model parameters
     print('Number of model parameters: {}'.format(
@@ -124,7 +125,7 @@ def main():
     cudnn.benchmark = True
 
     # define loss function (criterion) and optimizer
-    criterion = nn.CrossEntropyLoss().cuda()
+    criterion = nn.CrossEntropyLoss()#.cuda()
     optimizer = torch.optim.SGD(model.parameters(), args.lr,
                                 momentum=args.momentum, nesterov = args.nesterov,
                                 weight_decay=args.weight_decay)
@@ -159,19 +160,20 @@ def train(train_loader, model, criterion, optimizer, epoch,bin_op):
 
     end = time.time()
     for i, (input, target) in enumerate(train_loader):
-        target = target.cuda(non_blocking=True)
-        input = input.cuda()
+        #target = target.cuda(non_blocking=True)
+        #input = input.cuda()
         input_var = torch.autograd.Variable(input)
         target_var = torch.autograd.Variable(target)
         bin_op.binarization() # use bin_op.BWN() instead for Binary Weight Network 
+        
         # compute output
         output = model(input_var)
         loss = criterion(output, target_var)
-
+        
         # measure accuracy and record loss
         prec1 = accuracy(output.data, target, topk=(1,))[0]
-        losses.update(loss.data[0], input.size(0))
-        top1.update(prec1[0], input.size(0))
+        losses.update(loss.data.item(), input.size(0))
+        top1.update(prec1.item(), input.size(0))
 
         # compute gradient and do SGD step
         optimizer.zero_grad()
@@ -207,8 +209,8 @@ def validate(val_loader, model, criterion, epoch,bin_op):
     end = time.time()
     bin_op.binarization() # use bin_op.BWN() instead for Binary Weight Network
     for i, (input, target) in enumerate(val_loader):
-        target = target.cuda(non_blocking=True)
-        input = input.cuda()
+        #target = target.cuda(non_blocking=True)
+        #input = input.cuda()
         input_var = torch.autograd.Variable(input, volatile=True)
         target_var = torch.autograd.Variable(target, volatile=True)
 
@@ -218,8 +220,8 @@ def validate(val_loader, model, criterion, epoch,bin_op):
 
         # measure accuracy and record loss
         prec1 = accuracy(output.data, target, topk=(1,))[0]
-        losses.update(loss.data[0], input.size(0))
-        top1.update(prec1[0], input.size(0))
+        losses.update(loss.data.item(), input.size(0))
+        top1.update(prec1.item(), input.size(0))
 
         # measure elapsed time
         batch_time.update(time.time() - end)
