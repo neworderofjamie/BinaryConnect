@@ -50,7 +50,7 @@ parser.add_argument('--name', default='WideResNet-28-10', type=str,
                     help='name of experiment')
 parser.add_argument('--tensorboard',
                     help='Log progress to TensorBoard', action='store_true')
-parser.set_defaults(augment=True)
+parser.set_defaults(augment=False)
 
 best_prec1 = 0
 
