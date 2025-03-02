@@ -17,7 +17,7 @@ from torch.autograd import Variable
 from wideresnet import WideResNet
 
 # used for logging to TensorBoard
-from tensorboard_logger import configure, log_value
+#from tensorboard_logger import configure, log_value
 
 parser = argparse.ArgumentParser(description='PyTorch WideResNet Training')
 parser.add_argument('--dataset', default='cifar10', type=str,
