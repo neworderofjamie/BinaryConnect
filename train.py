@@ -86,7 +86,7 @@ def main():
         ])
 
     kwargs = {'num_workers': 1, 'pin_memory': True}
-    assert(args.dataset == 'cifar10' or args.dataset == 'cifar100')
+    #assert(args.dataset == 'cifar10' or args.dataset == 'cifar100')
     train_loader = torch.utils.data.DataLoader(
         datasets.__dict__[args.dataset.upper()]('../data', train=True, download=True,
                          transform=transform_train),
@@ -106,7 +106,7 @@ def main():
     # for training on multiple GPUs.
     # Use CUDA_VISIBLE_DEVICES=0,1 to specify which GPUs to use
     # model = torch.nn.DataParallel(model).cuda()
-    model = model.cuda()
+    #model = model.cuda()
     bin_op=binaryconnect.BC(model)
     # optionally resume from a checkpoint
     if args.resume:
