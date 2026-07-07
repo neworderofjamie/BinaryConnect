@@ -100,9 +100,9 @@ def main():
     #                        args.widen_factor, dropRate=args.droprate)
     model = nn.Sequential(
         nn.Flatten(),
-        nn.Linear(28 * 28, 128),
+        nn.Linear(28 * 28, 128, bias=False),
         nn.ReLU(),
-        nn.Linear(128, 10))
+        nn.Linear(128, 10, bias=False))
 
     # get the number of model parameters
     print('Number of model parameters: {}'.format(
