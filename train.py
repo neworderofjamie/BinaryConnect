@@ -21,7 +21,7 @@ from torch.autograd import Variable
 #from tensorboard_logger import configure, log_value
 
 parser = argparse.ArgumentParser(description='PyTorch WideResNet Training')
-parser.add_argument('--dataset', default='cifar10', type=str,
+parser.add_argument('--dataset', default='mnist', type=str,
                     help='dataset (cifar10 [default] or cifar100)')
 parser.add_argument('--epochs', default=200, type=int,
                     help='number of total epochs to run')
@@ -78,8 +78,12 @@ def main():
             normalize,
             ])
     else:
-        transform_train = transforms.ToTensor()
-    transform_test = transforms.ToTensor()
+        transform_train = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.Lambda(lambda x: x * 0.25)])
+    transform_test = transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Lambda(lambda x: x * 0.25)])
 
     kwargs = {'num_workers': 1, 'pin_memory': True}
     #assert(args.dataset == 'cifar10' or args.dataset == 'cifar100')
