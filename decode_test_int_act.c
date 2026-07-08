@@ -20,11 +20,11 @@
 
 
 // **YOUSSEF** if you swap which macro is commented, you can find overflows easily
-#define INCREMENT_OVERFLOW(ACC, VAL) assert(!__builtin_add_overflow(ACC, VAL, &ACC))
-//#define INCREMENT_OVERFLOW(ACC, VAL) ACC += VAL
+//#define INCREMENT_OVERFLOW(ACC, VAL) assert(!__builtin_add_overflow(ACC, VAL, &ACC))
+#define INCREMENT_OVERFLOW(ACC, VAL) ACC += VAL
 
-#define DECREMENT_OVERFLOW(ACC, VAL) assert(!__builtin_sub_overflow(ACC, VAL, &ACC))
-//#define DECREMENT_OVERFLOW(ACC, VAL) ACC -= VAL
+//#define DECREMENT_OVERFLOW(ACC, VAL) assert(!__builtin_sub_overflow(ACC, VAL, &ACC))
+#define DECREMENT_OVERFLOW(ACC, VAL) ACC -= VAL
 
 const uint8_t hidden_weights[] = {102,101,170,150,166, 86,170, 89,106,170, 86,154, 90,106,170,149,101, 89,105,
  106,170,105,165,170,154,165,106,153, 90,166,150,154,169,153,166, 89,166,149,
