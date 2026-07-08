@@ -1443,7 +1443,6 @@ inline void weight_decode_row(float activation, const uint8_t *rowWeights, float
      for (unsigned int start = 0; start < Tsize; start += 4) {
         // Get next byte of weights (contains four trinary weights)
         const uint8_t weight = rowWeights[start / 4];
-        //const uint8_t weight = pgm_read_byte(&Weights[(i * Tsize) + (start / 4)]);
     
         // First +1
         if(weight & 1) {   

@@ -18,6 +18,14 @@
 
 #define ACT_TYPE int16_t    // **YOUSSEF** 16-bit activations are required to prevent overflows
 
+
+// **YOUSSEF** if you swap which macro is commented, you can find overflows easily
+#define INCREMENT_OVERFLOW(ACC, VAL) assert(!__builtin_add_overflow(ACC, VAL, &ACC))
+//#define INCREMENT_OVERFLOW(ACC, VAL) ACC += VAL
+
+#define DECREMENT_OVERFLOW(ACC, VAL) assert(!__builtin_sub_overflow(ACC, VAL, &ACC))
+//#define DECREMENT_OVERFLOW(ACC, VAL) ACC -= VAL
+
 const uint8_t hidden_weights[] = {102,101,170,150,166, 86,170, 89,106,170, 86,154, 90,106,170,149,101, 89,105,
  106,170,105,165,170,154,165,106,153, 90,166,150,154,169,153,166, 89,166,149,
  169, 90, 85,106,170, 86,153,169, 85,150, 86,105,150,166,153,105,106,105,170,
@@ -1440,19 +1448,12 @@ void loadLabelData(const char *labelDataFilename, uint8_t *data)
     fclose(f);
 }
 
-
-inline void weight_decode_row(int32_t activation, const uint8_t *rowWeights, ACT_TYPE *target, int Tsize)
+// **YOUSSEF** as activation will be in a register, best to use native type - I THINK int will always do this
+inline void weight_decode_row(int activation, const uint8_t *rowWeights, ACT_TYPE *target, int Tsize)
 {
      for (int start = 0; start < Tsize; start += 4) {
         // Get next byte of weights (contains four trinary weights)
         const uint8_t weight = rowWeights[start / 4];
-
-        // **YOUSSEF** if you swap which macro is commented, you can find overflows easily
-        #define INCREMENT_OVERFLOW(ACC, VAL) assert(!__builtin_add_overflow(ACC, VAL, &ACC))
-        //#define INCREMENT_OVERFLOW(ACC, VAL) ACC += VAL
-
-        #define DECREMENT_OVERFLOW(ACC, VAL) assert(!__builtin_sub_overflow(ACC, VAL, &ACC))
-        //#define DECREMENT_OVERFLOW(ACC, VAL) ACC -= VAL
 
         // First +1
         if(weight & 1) {   
@@ -1508,7 +1509,7 @@ void weights_decode_input(const uint8_t *input, const uint8_t *Weights, ACT_TYPE
     // Apply inputs
     for(unsigned int i = 0; i < Lsize; i++)
     {
-        const int32_t activation = input[i];
+        const int activation = input[i];
         weight_decode_row(activation, &Weights[i * (Tsize / 4)], Target, Tsize);
         //Target[i] = B_ReLU(activation);
         //printf("Activation: %d:%d\n", B_ReLU(activation), Target[i]);
@@ -1528,7 +1529,7 @@ void weights_decode_hidden(const ACT_TYPE *Layer, const uint8_t *Weights, ACT_TY
 
     for(unsigned int i = 0; i < Lsize; i++)
     {
-        const int32_t activation = Layer[i];
+        const int activation = Layer[i];
         weight_decode_row(activation, &Weights[i * (Tsize / 4)], Target, Tsize);
     }
 
@@ -1555,6 +1556,7 @@ int main()
     loadImageData("t10k-images.idx3-ubyte", mnistImages);
     loadLabelData("t10k-labels.idx1-ubyte", mnistLabels);
 
+    // **YOUSSEF** input layer doesn't require 16-bit activations and, as it's also the largest, this saves memory!
     uint8_t input_layer[INP];
     ACT_TYPE hidden_layer[HID];
     ACT_TYPE output_layer[OUT];
