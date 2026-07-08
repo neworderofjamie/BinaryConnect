@@ -1441,7 +1441,7 @@ void loadLabelData(const char *labelDataFilename, uint8_t *data)
 }
 
 
-inline void weight_decode_row(ACT_TYPE activation, const uint8_t *rowWeights, ACT_TYPE *target, int Tsize)
+inline void weight_decode_row(int32_t activation, const uint8_t *rowWeights, ACT_TYPE *target, int Tsize)
 {
      for (int start = 0; start < Tsize; start += 4) {
         // Get next byte of weights (contains four trinary weights)
@@ -1499,7 +1499,7 @@ inline void weight_decode_row(ACT_TYPE activation, const uint8_t *rowWeights, AC
         }
     }
 }
-void weights_decode_input(const ACT_TYPE *Layer, const uint8_t *Weights, ACT_TYPE *Target, unsigned int Lsize, unsigned int Tsize)
+void weights_decode_input(const uint8_t *input, const uint8_t *Weights, ACT_TYPE *Target, unsigned int Lsize, unsigned int Tsize)
 {
     // Zero target
     // **YOUSSEF** because we are now running over the whole test set we need to zero target before each matrix is decoded
@@ -1508,7 +1508,7 @@ void weights_decode_input(const ACT_TYPE *Layer, const uint8_t *Weights, ACT_TYP
     // Apply inputs
     for(unsigned int i = 0; i < Lsize; i++)
     {
-        const ACT_TYPE activation = Layer[i];
+        const int32_t activation = input[i];
         weight_decode_row(activation, &Weights[i * (Tsize / 4)], Target, Tsize);
         //Target[i] = B_ReLU(activation);
         //printf("Activation: %d:%d\n", B_ReLU(activation), Target[i]);
@@ -1528,7 +1528,7 @@ void weights_decode_hidden(const ACT_TYPE *Layer, const uint8_t *Weights, ACT_TY
 
     for(unsigned int i = 0; i < Lsize; i++)
     {
-        const ACT_TYPE activation = Layer[i];
+        const int32_t activation = Layer[i];
         weight_decode_row(activation, &Weights[i * (Tsize / 4)], Target, Tsize);
     }
 
@@ -1555,7 +1555,7 @@ int main()
     loadImageData("t10k-images.idx3-ubyte", mnistImages);
     loadLabelData("t10k-labels.idx1-ubyte", mnistLabels);
 
-    ACT_TYPE input_layer[INP];
+    uint8_t input_layer[INP];
     ACT_TYPE hidden_layer[HID];
     ACT_TYPE output_layer[OUT];
 
