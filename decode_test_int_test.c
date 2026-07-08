@@ -14,7 +14,9 @@
 
 #define INP 784
 #define HID 128
-#define OUT 12		// **YOUSSEF** Because we have now 
+#define OUT 12		    // **YOUSSEF** Because we have now 
+
+#define ACT_TYPE int16_t    // **YOUSSEF** 16-bit activations are required to prevent overflows
 
 const uint8_t hidden_weights[] = {102,101,170,150,166, 86,170, 89,106,170, 86,154, 90,106,170,149,101, 89,105,
  106,170,105,165,170,154,165,106,153, 90,166,150,154,169,153,166, 89,166,149,
@@ -1361,7 +1363,7 @@ const uint8_t output_weights[] = {149,149,  5,150,153,  5, 85,150,  9,170,105, 1
    9, 89,149,  9};
 
 
-void printArray(int32_t *arry, int SIZ)
+void printArray(ACT_TYPE *arry, int SIZ)
 {
     for(int i = 0; i < SIZ; i++)
     {
@@ -1369,7 +1371,7 @@ void printArray(int32_t *arry, int SIZ)
     }
 }
 
-inline int32_t B_ReLU(int32_t x)
+inline ACT_TYPE B_ReLU(ACT_TYPE x)
 {
     return ((x > 0) ? x : 0);
 }
@@ -1439,60 +1441,74 @@ void loadLabelData(const char *labelDataFilename, uint8_t *data)
 }
 
 
-inline void weight_decode_row(int32_t activation, const uint8_t *rowWeights, int32_t *target, unsigned int Tsize)
+inline void weight_decode_row(ACT_TYPE activation, const uint8_t *rowWeights, ACT_TYPE *target, int Tsize)
 {
-     for (unsigned int start = 0; start < Tsize; start += 4) {
+     for (int start = 0; start < Tsize; start += 4) {
         // Get next byte of weights (contains four trinary weights)
         const uint8_t weight = rowWeights[start / 4];
-        //const uint8_t weight = pgm_read_byte(&Weights[(i * Tsize) + (start / 4)]);
-    
+
+        // **YOUSSEF** if you swap which macro is commented, you can find overflows easily
+        #define INCREMENT_OVERFLOW(ACC, VAL) assert(!__builtin_add_overflow(ACC, VAL, &ACC))
+        //#define INCREMENT_OVERFLOW(ACC, VAL) ACC += VAL
+
+        #define DECREMENT_OVERFLOW(ACC, VAL) assert(!__builtin_sub_overflow(ACC, VAL, &ACC))
+        //#define DECREMENT_OVERFLOW(ACC, VAL) ACC -= VAL
+
         // First +1
         if(weight & 1) {   
-            target[start] += activation;
+            //target[start] += activation;
+            INCREMENT_OVERFLOW(target[start], activation);
         }
         // First -1
         else if(weight & 2) {
-            target[start] -= activation;
+            //target[start] -= activation;
+            DECREMENT_OVERFLOW(target[start], activation);
         }
 
         // Second +1
         if(weight & 4) {
-            target[start + 1] += activation;
+            //target[start + 1] += activation;
+            INCREMENT_OVERFLOW(target[start + 1], activation);
         }
         // Second -1
         else if(weight & 8) {
-            target[start + 1] -= activation;
+            //target[start + 1] -= activation;
+            DECREMENT_OVERFLOW(target[start + 1], activation);
         }
 
         // Third+1
         if(weight & 16) {
-            target[start + 2] += activation;
+            //target[start + 2] += activation;
+            INCREMENT_OVERFLOW(target[start + 2], activation);
         }
         // Third-1
         else if(weight & 32) {
-            target[start + 2] -= activation;
+            //target[start + 2] -= activation;
+            DECREMENT_OVERFLOW(target[start + 2], activation);
         }
     
         // Fourth+1
         if(weight & 64) {
-            target[start + 3] += activation;
+            //target[start + 3] += activation;
+            INCREMENT_OVERFLOW(target[start + 3], activation);
         }
         // Fourth-1
         else if(weight & 128) {
-            target[start + 3] -= activation;
+            //target[start + 3] -= activation;
+            DECREMENT_OVERFLOW(target[start + 3], activation);
         }
     }
 }
-void weights_decode_input(const int32_t *Layer, const uint8_t *Weights, int32_t *Target, unsigned int Lsize, unsigned int Tsize)
+void weights_decode_input(const ACT_TYPE *Layer, const uint8_t *Weights, ACT_TYPE *Target, unsigned int Lsize, unsigned int Tsize)
 {
     // Zero target
     // **YOUSSEF** because we are now running over the whole test set we need to zero target before each matrix is decoded
-    memset(Target, 0, Tsize * 4);
+    memset(Target, 0, Tsize * sizeof(ACT_TYPE));
 
     // Apply inputs
     for(unsigned int i = 0; i < Lsize; i++)
     {
-        const float activation = Layer[i];
+        const ACT_TYPE activation = Layer[i];
         weight_decode_row(activation, &Weights[i * (Tsize / 4)], Target, Tsize);
         //Target[i] = B_ReLU(activation);
         //printf("Activation: %d:%d\n", B_ReLU(activation), Target[i]);
@@ -1504,15 +1520,15 @@ void weights_decode_input(const int32_t *Layer, const uint8_t *Weights, int32_t 
     }
 }
 
-void weights_decode_hidden(const int32_t *Layer, const uint8_t *Weights, int32_t *Target, unsigned int Lsize, unsigned int Tsize)
+void weights_decode_hidden(const ACT_TYPE *Layer, const uint8_t *Weights, ACT_TYPE *Target, unsigned int Lsize, unsigned int Tsize)
 {
     // Zero target
     // **YOUSSEF** because we are now running over the whole test set we need to zero target before each matrix is decoded
-    memset(Target, 0, Tsize * 4);
+    memset(Target, 0, Tsize * sizeof(ACT_TYPE));
 
     for(unsigned int i = 0; i < Lsize; i++)
     {
-        const float activation = Layer[i];
+        const ACT_TYPE activation = Layer[i];
         weight_decode_row(activation, &Weights[i * (Tsize / 4)], Target, Tsize);
     }
 
@@ -1539,17 +1555,18 @@ int main()
     loadImageData("t10k-images.idx3-ubyte", mnistImages);
     loadLabelData("t10k-labels.idx1-ubyte", mnistLabels);
 
-    int32_t input_layer[INP];
-    int32_t hidden_layer[HID];
-    int32_t output_layer[OUT];
+    ACT_TYPE input_layer[INP];
+    ACT_TYPE hidden_layer[HID];
+    ACT_TYPE output_layer[OUT];
 
     // Loop through test set
     int correct = 0;
     for(int i = 0; i < 10000; i++) {
         // Convert correct image to float
         for(int j = 0; j < INP; j++) {
+            // **YOUSSEF** try exploring different thresholds for greyscaling MNIST! Nice FYP figure
             const uint8_t grayscaleMNIST = mnistImages[(i * INP) + j];
-            input_layer[j] = grayscaleMNIST;
+            input_layer[j] = (grayscaleMNIST > 64) ? 1 : 0;
         }
 
         weights_decode_input(input_layer, hidden_weights, hidden_layer, INP, HID);
