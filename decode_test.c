@@ -1551,7 +1551,7 @@ int main()
     for(int i = 0; i < 10000; i++) {
         // Convert correct image to float
         for(int j = 0; j < INP; j++) {
-            input_layer[j] = ((float)mnistImages[(i * INP) + j] / 255.0f) * 0.25f;
+            input_layer[j] = ((float)mnistImages[(i * INP) + j] / 255.0f);
         }
 
         weights_decode_input(input_layer, hidden_weights, hidden_layer, INP, HID);
