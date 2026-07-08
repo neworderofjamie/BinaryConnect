@@ -13,7 +13,7 @@
 
 #define INP 784
 #define HID 128
-#define OUT 10
+#define OUT 12		// **YOUSSEF** Because we have now 
 
 const uint8_t hidden_weights[] = {102,101,170,150,166, 86,170, 89,106,170, 86,154, 90,106,170,149,101, 89,105,
  106,170,105,165,170,154,165,106,153, 90,166,150,154,169,153,166, 89,166,149,
@@ -1336,24 +1336,28 @@ const uint8_t hidden_weights[] = {102,101,170,150,166, 86,170, 89,106,170, 86,15
  170,166,166,169,153,149,101,150, 89,105,153,153,170, 85,149,105,154,101,102,
   90,149,105,154,101,169, 90,153,105,169, 90,166, 89, 89,101,154, 90,105, 85,
   86, 90, 86, 85,169,102,170,101};
-	
-const uint8_t output_weights[] = {149,149,101,153, 89, 85,150,169,154,166, 85, 86,105,165,149,169,153,154, 90,
- 101, 86, 86, 90, 85,153, 85,150, 89,101,149, 85,150,105,105,149, 85,150,169,
- 169,170, 86, 86, 89,102,149,166,170,170,106,170,170,170, 86,101, 90,170, 89,
- 101, 85, 89, 85, 90, 89,101,149, 85, 86, 89,101,165,149,149,165,170,169,105,
-  86, 89, 85,153, 85,150, 85,102,165,153,150,169,166,170,153,150,154, 86,105,
-  85,149,149, 89,169,169,149,106,170,170, 89,102, 89,101,166,149,150, 89,105,
- 153, 86, 86,169,169,154, 85, 86, 89,105,105,169,170,154,101,153, 85, 86,105,
-  90, 89,153, 85,149,102,149,149,149, 85,101,149, 90, 86, 89,101,150, 85,149,
- 153, 89, 85,149,149,149,150,154, 85,150, 89,101,165,153,149,149,102,149, 89,
- 166,169,105,165, 85,102, 89,105,149,149,150,153, 89, 89,105,102,105,101,153,
-  85, 86,169,106,170, 85,150, 89,101,153,153,149,165,165,166,166,170, 90,102,
- 153,154,149, 90,101,149,101,102, 89, 89, 89, 85, 86, 89, 85,153, 85,149, 85,
- 101,153, 85, 86, 89,101,153,170,106, 90,101,149,101,170, 86,106,153, 85, 86,
- 169,101,149, 85, 86,105,165,149,170,101,153,102,149, 85,150, 89,101,149, 85,
- 102, 89,101,153, 86,166,154,105, 85, 86, 86,105,150,154,169,149, 90,101,149,
-  85, 86,106,154, 89, 85, 86, 89,101,149, 85,149,149,170,166,170,106, 90,105,
- 153,170,169, 90, 85,153, 85,150, 89,102,153,101,150,153, 85,153};
+
+const uint8_t output_weights[] = {149,149,  5,150,153,  5, 85,150,  9,170,105, 10, 85, 86,  9, 86, 90,  9,169,
+ 153, 10,169, 85,  6, 86, 86, 10, 85,149,  9, 85,150,  9, 85, 86,  9, 85,150,
+   9,150, 86,  9, 85,150,  9,154,170, 10, 86, 86,  9,101, 86,  9,166,170, 10,
+ 170,166, 10,170,170,  6, 85,166,  5,170, 89,  5, 86,149,  5, 85, 90,  9, 85,
+  86,  9, 85, 86,  9, 85, 86, 10,149,149,  5,170,154, 10,105, 86,  9, 85,149,
+   9, 85,150,  5,101, 86, 10,153,150,  9,106,170, 10,153,150, 10,105,149,  6,
+  85,149,  5,153,149, 10,169,149, 10,166,170, 10, 89,102,  9, 85,102, 10,149,
+ 150,  9,149,150,  9, 86, 86,  9,154,170,  9, 85, 86,  9,149,150,  6,169,170,
+  10, 89,150,  9, 85, 86,  9,166,149,  5,153, 85,  5,105, 86,  9,149,149,  5,
+  85, 86,  9, 90, 86,  9, 85,102,  9, 85,149,  9,153, 85,  5,149,149,  5,105,
+ 169,  9, 85,150,  9, 85, 86, 10,153,149,  5,105, 86,  9, 89,166,  9,154, 86,
+  10, 85,102,  9,149, 86,  9,149,150,  9,153,149,  5,105,102,  9, 86,150,  9,
+  85, 86,  9,170,166, 10, 85,150,  9, 85,150,  9,153,149,  5, 90,106, 10,166,
+ 170, 10,101,150,  9,154,149, 10, 85, 86,  9,101,102,  9,149,149,  5, 85, 86,
+   9, 85,149,  9, 85,149,  5, 85,150,  9, 85, 86,  9, 85,150,  9,170,106, 10,
+  85, 86,  9,101,170,  6,165,150,  9, 85, 86,  9, 90, 86,  9, 85, 86,  9, 86,
+  90,  9,170,101,  9,105, 86,  9, 85,150,  9, 85, 86,  9, 85,102,  9, 85,150,
+   9, 86,166, 10,153, 86,  5, 86, 86,  9,102,169,  9,169,149, 10, 85, 86,  9,
+  85, 86, 10,166,153,  5, 85, 86,  9, 85, 86,  9, 85,149,  5,169,106, 10,170,
+ 106, 10,149,150,  9,170,169, 10, 85,149,  9, 85,150,  9,101,150,  9,101,150,
+   9, 89,149,  9};
 
 
 void printArray(float arry[], int SIZ)
@@ -1481,6 +1485,7 @@ inline void weight_decode_row(float activation, const uint8_t *rowWeights, float
 void weights_decode_input(const float *Layer, const uint8_t *Weights, float *Target, unsigned int Lsize, unsigned int Tsize)
 {
     // Zero target
+    // **YOUSSEF** because we are now running over the whole test set we need to zero target before each matrix is decoded
     for(unsigned int i = 0; i<Tsize; i++) {
         Target[i] = 0.0f;
     }
@@ -1503,6 +1508,7 @@ void weights_decode_input(const float *Layer, const uint8_t *Weights, float *Tar
 void weights_decode_hidden(const float *Layer, const uint8_t *Weights, float *Target, unsigned int Lsize, unsigned int Tsize)
 {
     // Zero target
+    // **YOUSSEF** because we are now running over the whole test set we need to zero target before each matrix is decoded
     for(unsigned int i = 0; i<Tsize; i++) {
         Target[i] = 0.0f;
     }
@@ -1511,8 +1517,6 @@ void weights_decode_hidden(const float *Layer, const uint8_t *Weights, float *Ta
     {
         const float activation = Layer[i];
         weight_decode_row(activation, &Weights[i * (Tsize / 4)], Target, Tsize);
-        //Target[i] = B_ReLU(activation);
-        //printf("Activation: %d:%d\n", B_ReLU(activation), Target[i]);
     }
 
     // Apply activation function
@@ -1524,16 +1528,20 @@ void weights_decode_hidden(const float *Layer, const uint8_t *Weights, float *Ta
 
 int main()
 {
+    // **YOUSSEF** double-check sizes ARE multiples of 4
+    assert((HID % 4) == 0);
+    assert((OUT % 4) == 0);
+
     assert(sizeof(hidden_weights) == (INP * HID / 4));
     assert(sizeof(output_weights) == (HID * OUT / 4));
     
     uint8_t *mnistImages = (uint8_t*)malloc(28 * 28 * 10000);
     uint8_t *mnistLabels = (uint8_t*)malloc(10000);
-    
+
     // Load images and labels
     loadImageData("t10k-images.idx3-ubyte", mnistImages);
     loadLabelData("t10k-labels.idx1-ubyte", mnistLabels);
-    
+
     float input_layer[INP];
     float hidden_layer[HID];
     float output_layer[OUT];
@@ -1543,9 +1551,9 @@ int main()
     for(int i = 0; i < 10000; i++) {
         // Convert correct image to float
         for(int j = 0; j < INP; j++) {
-            input_layer[j] = (float)mnistImages[(i * INP) + j] / 255.0f;
+            input_layer[j] = ((float)mnistImages[(i * INP) + j] / 255.0f) * 0.25f;
         }
-        
+
         weights_decode_input(input_layer, hidden_weights, hidden_layer, INP, HID);
         //printf("I -> H\n");
         //printArray(hidden_layer, HID);
@@ -1554,8 +1562,9 @@ int main()
         //printf("H -> O\n");
         //printArray(output_layer, OUT);
 
+        // **YOUSSEF*** NOTE that, for safety, we only check the ACTUAL outputs
         int pred = 0;
-        for(int j = 0; j < OUT; j++)
+        for(int j = 0; j < 10; j++)
         {
             if(output_layer[j] > output_layer[pred])
             {
@@ -1566,9 +1575,9 @@ int main()
             correct++;
         }
     }
-    
+
     printf("%d/10000 correct\n", correct);
-    
+
     free(mnistImages);
     free(mnistLabels);
 }
