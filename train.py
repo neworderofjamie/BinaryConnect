@@ -78,6 +78,7 @@ def main():
             normalize,
             ])
     else:
+        # **YOUSSEF** scale inputs here
         transform_train = transforms.Compose([
             transforms.ToTensor(),
             transforms.Lambda(lambda x: x * 0.25)])
@@ -98,6 +99,7 @@ def main():
     # create model
     #model = WideResNet(args.layers, args.dataset == 'cifar10' and 10 or 100,
     #                        args.widen_factor, dropRate=args.droprate)
+    # **YOUSSEF** disable biases here!
     model = nn.Sequential(
         nn.Flatten(),
         nn.Linear(28 * 28, 128, bias=False),
