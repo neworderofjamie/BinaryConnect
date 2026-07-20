@@ -86,7 +86,7 @@ def main():
         transforms.ToTensor(),
         transforms.Lambda(lambda x: x * 0.25)])
 
-    kwargs = {'num_workers': 1, 'pin_memory': True}
+    kwargs = {'num_workers': 0, 'pin_memory': True}
     #assert(args.dataset == 'cifar10' or args.dataset == 'cifar100')
     train_loader = torch.utils.data.DataLoader(
         datasets.__dict__[args.dataset.upper()]('../data', train=True, download=True,
